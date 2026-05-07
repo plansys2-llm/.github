@@ -10,7 +10,7 @@ This organization hosts the two repositories that make up the project. The full 
 
 | Repository | What it is |
 |---|---|
-| [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model; returns the predicate deltas needed to recover. Default plugin uses local llama.cpp via `llama_ros`; other LLMs (ChatGPT, Claude, …) can be plugged in. |
+| [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model and returns the predicate deltas needed to recover. |
 | [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, and book models. Entry point of the project. |
 
 ---
@@ -22,7 +22,7 @@ This organization hosts the two repositories that make up the project. The full 
 - **Navigation:** EasyNav (AMCL localizer + costmap planner/controller)
 - **Perception:** YOLO via `yolo_ros`
 - **PDDL planning:** PlanSys2 with POPF as the planner backend
-- **LLM replanner:** `plansys2_llm_solver` (this project) — runs alongside POPF and is consulted at execution time. Default plugin: local llama.cpp via `llama_ros`; pluggable for other LLMs.
+- **LLM replanner:** `plansys2_llm_solver` (this project) — runs alongside POPF and is consulted at execution time.
 - **Behavior trees:** PlanSys2 BT actions (`move`, `pick_book`, `place_book`)
 
 ---
