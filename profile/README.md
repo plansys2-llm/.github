@@ -1,6 +1,6 @@
 # plansys2-llm
 
-LLM-assisted PDDL planning on a mobile robot, demoed in a service-robot scenario: a Kobuki picks up a misplaced book in a bookstore and returns it to the right shelf.
+LLM-assisted replanning on a mobile robot, demoed in a service-robot scenario: a Kobuki picks up a misplaced book in a bookstore and returns it to the right shelf.
 
 This organization hosts the two repositories that make up the project. The full installation and run instructions live here.
 
@@ -10,8 +10,8 @@ This organization hosts the two repositories that make up the project. The full 
 
 | Repository | What it is |
 |---|---|
-| [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | Custom PlanSys2 plan-solver plugin backed by an LLM (llama.cpp / `llama_ros`). Ships `plansys2_llama_solver`, `plansys2_solver`, and `plansys2_solver_msgs`. |
-| [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, and book models for the bookstore scenario. Entry point of the project. |
+| [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model; returns the predicate deltas needed to recover. Default plugin uses local llama.cpp via `llama_ros`; other LLMs (ChatGPT, Claude, …) can be plugged in. |
+| [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, and book models. Entry point of the project. |
 
 ---
 
@@ -21,8 +21,8 @@ This organization hosts the two repositories that make up the project. The full 
 - **Simulator:** Gazebo Sim with the AWS RoboMaker bookstore world
 - **Navigation:** EasyNav (AMCL localizer + costmap planner/controller)
 - **Perception:** YOLO via `yolo_ros`
-- **Planning:** PlanSys2 with POPF as the default planner backend
-- **LLM solver:** `plansys2_llama_solver` (this project) on top of `llama_ros` / llama.cpp
+- **PDDL planning:** PlanSys2 with POPF as the planner backend
+- **LLM replanner:** `plansys2_llm_solver` (this project) — runs alongside POPF and is consulted at execution time. Default plugin: local llama.cpp via `llama_ros`; pluggable for other LLMs.
 - **Behavior trees:** PlanSys2 BT actions (`move`, `pick_book`, `place_book`)
 
 ---
