@@ -11,7 +11,7 @@ This organization hosts the two repositories that make up the project. The full 
 | Repository | What it is |
 |---|---|
 | [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model and returns the predicate deltas needed to recover. |
-| [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, and book models. Entry point of the project. |
+| [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, and book models — entry point of the project. |
 
 ---
 
@@ -121,6 +121,8 @@ Launch arguments:
 ## Project context
 
 Bachelor's Final Project (TFG) at Universidad Rey Juan Carlos (URJC).
+
+---
 
 ## License
 
