@@ -1,6 +1,15 @@
 # plansys2-llm
 
-LLM-assisted replanning on a mobile robot, demoed in a service-robot scenario: a Kobuki picks up a misplaced book in a bookstore and returns it to the right shelf.
+Tools and demos for **LLM-assisted replanning in PlanSys2** — though the approach is planner-agnostic and applies to any PDDL-based planning system. When a classical planner hits an execution failure or a perception contradiction, an LLM is consulted to propose the world-state corrections needed to recover, and the planner replans from there. The current showcase is a service-robot demo where a Kobuki retrieves a misplaced book in a Gazebo bookstore.
+
+```mermaid
+flowchart LR
+  Perception[yolo_ros] -->|detections| Executor[PlanSys2 Executor]
+  Executor -->|failure or<br/>contradiction| Solver[plansys2_llm_solver]
+  Solver -->|predicate deltas| Executor
+  Executor -->|nav goals| Nav[EasyNav]
+  Nav --> Robot[Kobuki / Gazebo]
+```
 
 ---
 
