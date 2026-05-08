@@ -43,6 +43,9 @@ sudo apt install -y \
   ros-${ROS_DISTRO}-easynav nlohmann-json3-dev \
   libusb-1.0-0-dev libftdi1-dev libuvc-dev
 
+# ultralytics and lap are not packaged in apt; pip is the only option.
+# --break-system-packages is required by PEP 668 on Ubuntu 24.04.
+# The numpy<2 pin prevents pip from upgrading numpy and breaking cv_bridge.
 pip install --break-system-packages "numpy<2" ultralytics lap
 ```
 
