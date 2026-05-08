@@ -87,13 +87,11 @@ vcs import robot < robot/kobuki/thirdparty.repos
 vcs import planning/ros2_planning_system < planning/ros2_planning_system/dependency_repos.repos
 ```
 
-### 4. EasyNav — pick **one** of the two paths
+----
 
-EasyNav can be installed as a Debian package or built from source. **Choose one route only.** Mixing the apt deb and a source overlay invites ABI drift between releases.
+**EasyNav — pick one of the two paths.** EasyNav can be installed as a Debian package or built from source. **Choose one route only.** Mixing the apt deb and a source overlay invites ABI drift between releases.
 
-#### Option A — apt deb (recommended)
-
-Pulls the metapackage and all bundled plugins from the ROS 2 binary repository. Faster, no rebuild on EasyNav changes.
+*Option A — apt deb (recommended).* Pulls the metapackage and all bundled plugins from the ROS 2 binary repository. Faster, no rebuild on EasyNav changes.
 
 ```bash
 sudo apt install -y ros-${ROS_DISTRO}-easynav
@@ -103,9 +101,7 @@ git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/easynav_plugins.git
   navigation/easynav_plugins
 ```
 
-#### Option B — from source
-
-Builds the whole EasyNav stack from source. Pick this if you need to track upstream `main`/`devel` or modify EasyNav itself.
+*Option B — from source.* Builds the whole EasyNav stack from source. Pick this if you need to track upstream `main`/`devel` or modify EasyNav itself.
 
 ```bash
 git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/EasyNavigation.git \
@@ -116,7 +112,7 @@ git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/easynav_plugins.git
 
 > If you take Option B, do **not** also install `ros-${ROS_DISTRO}-easynav` from apt.
 
-### 5. Build
+### 4. Build
 
 ```bash
 cd ~/TFG
@@ -138,6 +134,8 @@ colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DGGML_CUDA=ON
 
 ## Run
 
+In the first terminal, source the workspace and bring up the simulator + navigation + perception + PlanSys2 stack:
+
 ```bash
 source /opt/ros/${ROS_DISTRO}/setup.bash
 source ~/TFG/install/setup.bash
@@ -153,6 +151,17 @@ Launch arguments:
 - `gui` — `true` (default) launches Gazebo with its GUI; `false` runs headless
 
 The first launch with `perception_mode:=real` may take longer because `yolo_ros` and `llama_ros` fetch their model weights on demand.
+
+Then, in a second terminal (with the same two `source` lines), start the reception controller — this is the node that drives the demo and consults the LLM solver when replanning is needed:
+
+```bash
+ros2 run plan_bookstore reception_controller_node \
+  --ros-args \
+  --params-file src/planning/plansys2_llm_examples/params/planner_param.yaml \
+  -p displaced_book:=red_book
+```
+
+Pick whichever `planner_param*.yaml` you want to test — `plansys2_llm_examples/params/` ships several profiles (e.g. `planner_param.yaml`, `planner_param_with_args.yaml`); swap the path to switch the planner/solver configuration without rebuilding.
 
 ---
 
