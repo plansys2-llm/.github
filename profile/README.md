@@ -112,42 +112,39 @@ colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DGGML_CUDA=ON
 
 ## Recommended local patches
 
-These tweaks live in third-party repos that this project pulls in, so they cannot be committed here. The demo runs without them, but they remove rough edges that show up in the bookstore scenario. Apply them to your local clones after step 3 (Clone) and rebuild the affected package.
+These changes live in third-party repos and cannot be committed here. Apply them after step 3 (Clone) for a smoother bookstore demo.
 
 ### Kobuki LiDAR — 360° field of view
 
-The Kobuki simulation ships its LiDAR with a 180° frontal sweep (`-π/2` to `+π/2`). The bookstore demo uses the LiDAR for both AMCL localization and obstacle detection, and behaves much better with the full 360° sweep that the real RPLidar provides.
+The default LiDAR is a 180° frontal sweep; AMCL and the costmap behave better with the full 360°.
 
-Edit `src/robot/ThirdParty/kobuki_ros/kobuki_description/urdf/kobuki_gazebo.urdf.xacro` and change the two `<horizontal>` angle lines inside the lidar sensor block:
+Edit `src/robot/ThirdParty/kobuki_ros/kobuki_description/urdf/kobuki_gazebo.urdf.xacro`, lidar `<horizontal>` block:
 
 ```xml
 <min_angle>-3.1416</min_angle>   <!-- was -1.5708 -->
 <max_angle>3.1416</max_angle>    <!-- was  1.5708 -->
 ```
 
-Then rebuild:
+Rebuild:
 
 ```bash
 colcon build --packages-select kobuki_description --symlink-install
 ```
 
-### Phi-4 — tune for low-resource hardware
+### Phi-4 — tune for CPU-only deployments
 
-The default `Phi-4.yaml` shipped by `llama_ros` is intentionally conservative (single CPU thread, batch of 8, 2048-token context). On a Raspberry Pi 5 16 GB or any 4-core machine without GPU these values produce inference so slow that the demo timeouts. Edit `src/llm/llama_ros/llama_bringup/models/Phi-4.yaml`:
+Defaults are single-threaded with a tiny batch. For 4-core CPUs (e.g. Raspberry Pi 5 16 GB), edit `src/llm/llama_ros/llama_bringup/models/Phi-4.yaml`:
 
 ```yaml
 context:
-  n_ctx: 4096          # was 2048 — fits domain + perception log comfortably
-  n_batch: 256         # was 8 — order-of-magnitude faster prompt processing
-  n_predict: 1024      # was 2048 — plans are short
-
+  n_ctx: 4096      # was 2048
+  n_batch: 256     # was 8
+  n_predict: 1024  # was 2048
 cpu:
-  n_threads: 4         # was 1 — use all four Pi cores
-
-# n_gpu_layers stays at 0 for CPU-only deployments.
+  n_threads: 4     # was 1
 ```
 
-Total RAM use stays around 5 GB (weights ~2.5 GB + KV cache ~1.5 GB), well within 16 GB. No rebuild needed: the YAML is read at launch time.
+No rebuild needed.
 
 ---
 
