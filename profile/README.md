@@ -2,7 +2,7 @@
 
 LLM-assisted replanning on a mobile robot, demoed in a service-robot scenario: a Kobuki picks up a misplaced book in a bookstore and returns it to the right shelf.
 
-This organization hosts the two repositories that make up the project. The full installation and run instructions live here.
+This organization owns two of the packages used by the demo. The full installation flow — including the upstream stacks the demo composes — is documented below.
 
 ---
 
@@ -22,25 +22,27 @@ This organization hosts the two repositories that make up the project. The full 
 - **Navigation:** EasyNav (AMCL localizer + costmap planner/controller)
 - **Perception:** YOLO via `yolo_ros`
 - **PDDL planning:** PlanSys2 with POPF as the planner backend
-- **LLM replanner:** `plansys2_llm_solver` (this project) — runs alongside POPF and is consulted at execution time.
+- **LLM replanner:** `plansys2_llm_solver` (this project) — runs alongside POPF and is consulted at execution time
 - **Behavior trees:** PlanSys2 BT actions (`move`, `pick_book`, `place_book`)
 
 ---
 
 ## Installation
 
-Tested on **Ubuntu 24.04 + ROS 2 Jazzy**. Replace `${ROS_DISTRO}` below with your distro (`jazzy` or `rolling`).
-
-### 1. Install dependencies
+Tested on **Ubuntu 24.04** with **ROS 2 Jazzy** and **ROS 2 Rolling**. The instructions below use `${ROS_DISTRO}` so the same recipe works on either; set it once and the rest of the steps follow.
 
 ```bash
-export ROS_DISTRO=jazzy
+export ROS_DISTRO=jazzy   # or: rolling
 source /opt/ros/${ROS_DISTRO}/setup.bash
+```
 
+### 1. System dependencies
+
+```bash
 sudo apt install -y \
   python3-colcon-common-extensions python3-rosdep python3-vcstool \
   ros-${ROS_DISTRO}-ros-gz-sim ros-${ROS_DISTRO}-ros-gz-bridge \
-  ros-${ROS_DISTRO}-easynav nlohmann-json3-dev \
+  nlohmann-json3-dev \
   libusb-1.0-0-dev libftdi1-dev libuvc-dev
 
 # ultralytics and lap are not packaged in apt; pip is the only option.
@@ -62,15 +64,9 @@ cd ~/TFG/src
 
 ### 3. Clone the repositories
 
-Main repos:
-
 ```bash
 # LLM
 git clone -b ${ROS_DISTRO} https://github.com/mgonzs13/llama_ros.git llm/llama_ros
-
-# Navigation
-git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/EasyNavigation.git navigation/EasyNavigation
-git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/easynav_plugins.git navigation/easynav_plugins
 
 # Perception
 git clone https://github.com/mgonzs13/yolo_ros.git perception/yolo_ros
@@ -91,7 +87,36 @@ vcs import robot < robot/kobuki/thirdparty.repos
 vcs import planning/ros2_planning_system < planning/ros2_planning_system/dependency_repos.repos
 ```
 
-### 4. Build
+### 4. EasyNav — pick **one** of the two paths
+
+EasyNav can be installed as a Debian package or built from source. **Choose one route only.** Mixing the apt deb and a source overlay invites ABI drift between releases.
+
+#### Option A — apt deb (recommended)
+
+Pulls the metapackage and all bundled plugins from the ROS 2 binary repository. Faster, no rebuild on EasyNav changes.
+
+```bash
+sudo apt install -y ros-${ROS_DISTRO}-easynav
+
+# AMCLLocalizer is not always shipped as a deb — clone just easynav_plugins:
+git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/easynav_plugins.git \
+  navigation/easynav_plugins
+```
+
+#### Option B — from source
+
+Builds the whole EasyNav stack from source. Pick this if you need to track upstream `main`/`devel` or modify EasyNav itself.
+
+```bash
+git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/EasyNavigation.git \
+  navigation/EasyNavigation
+git clone -b ${ROS_DISTRO} https://github.com/EasyNavigation/easynav_plugins.git \
+  navigation/easynav_plugins
+```
+
+> If you take Option B, do **not** also install `ros-${ROS_DISTRO}-easynav` from apt.
+
+### 5. Build
 
 ```bash
 cd ~/TFG
@@ -102,7 +127,8 @@ rosdep install --from-paths src --ignore-src -y -r --rosdistro ${ROS_DISTRO}
 # CPU only:
 colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF
 
-# Or, with NVIDIA GPU acceleration for llama_ros (requires CUDA toolkit):
+# Or, with NVIDIA GPU acceleration for llama_ros (requires the CUDA toolkit
+# matching your driver — verify with `nvcc --version`):
 colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DGGML_CUDA=ON
 ```
 
@@ -110,9 +136,29 @@ colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DGGML_CUDA=ON
 
 ---
 
-## Recommended local patches
+## Run
 
-These changes live in third-party repos and cannot be committed here. Apply them after step 3 (Clone) for a smoother bookstore demo.
+```bash
+source /opt/ros/${ROS_DISTRO}/setup.bash
+source ~/TFG/install/setup.bash
+
+ros2 launch plan_bookstore bookstore_kobuki_launch.py \
+  perception_mode:=sim displaced_book:=red_book
+```
+
+Launch arguments:
+
+- `displaced_book` — `red_book`, `green_book`, `yellow_book`, `blue_book`
+- `perception_mode` — `sim` (synthetic detections, no extra setup) or `real` (YOLO via `yolo_ros`; the model weights are managed by `yolo_ros` itself)
+- `gui` — `true` (default) launches Gazebo with its GUI; `false` runs headless
+
+The first launch with `perception_mode:=real` may take longer because `yolo_ros` and `llama_ros` fetch their model weights on demand.
+
+---
+
+## Optional tweaks
+
+These changes live in third-party repos and cannot be committed here. Apply them after step 3 if you want a smoother bookstore demo.
 
 ### Kobuki LiDAR — 360° field of view
 
@@ -137,32 +183,14 @@ Defaults are single-threaded with a tiny batch. For 4-core CPUs (e.g. Raspberry 
 
 ```yaml
 context:
-  n_ctx: 4096      # was 2048
-  n_batch: 256     # was 8
-  n_predict: 1024  # was 2048
+  n_ctx: 4096      # was 2048 — longer context for replanning prompts
+  n_batch: 256     # was 8    — fewer forward passes per token
+  n_predict: 1024  # was 2048 — caps response length to keep latency bounded
 cpu:
-  n_threads: 4     # was 1
+  n_threads: 4     # was 1    — match the CPU's physical cores
 ```
 
 No rebuild needed.
-
----
-
-## Run
-
-```bash
-source /opt/ros/${ROS_DISTRO}/setup.bash
-source ~/TFG/install/setup.bash
-
-ros2 launch plan_bookstore bookstore_kobuki_launch.py \
-  perception_mode:=real displaced_book:=red_book
-```
-
-Launch arguments:
-
-- `displaced_book` — `red_book`, `green_book`, `yellow_book`, `blue_book`
-- `perception_mode` — `real` (YOLO) or `sim` (synthetic detections)
-- `gui` — `true` / `false`
 
 ---
 
@@ -197,6 +225,7 @@ If something specific to the Kobuki / EasyNav / PlanSys2 stacks fails and the no
 - EasyNavigation core: <https://github.com/EasyNavigation/EasyNavigation>
 - PlanSys2: <https://github.com/PlanSys2/ros2_planning_system>
 - llama_ros: <https://github.com/mgonzs13/llama_ros>
+- yolo_ros: <https://github.com/mgonzs13/yolo_ros>
 
 ---
 
@@ -208,4 +237,4 @@ Bachelor's Final Project (TFG) at Universidad Rey Juan Carlos (URJC).
 
 ## License
 
-Apache 2.0 — see each repository's `LICENSE` file.
+The two repositories owned by this organization (`plansys2_llm_solver`, `plansys2_llm_examples`) are released under Apache 2.0. Upstream stacks pulled in during installation keep their own licenses — see each repository's `LICENSE` file.
