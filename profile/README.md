@@ -40,10 +40,13 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 sudo apt install -y \
   python3-colcon-common-extensions python3-rosdep python3-vcstool \
   ros-${ROS_DISTRO}-ros-gz-sim ros-${ROS_DISTRO}-ros-gz-bridge \
-  ros-${ROS_DISTRO}-easynav nlohmann-json3-dev
+  ros-${ROS_DISTRO}-easynav nlohmann-json3-dev \
+  libusb-1.0-0-dev libftdi1-dev libuvc-dev
 
 pip install --break-system-packages "numpy<2" ultralytics lap
 ```
+
+> `libusb-1.0-0-dev`, `libftdi1-dev` and `libuvc-dev` are required by `kobuki_core` and `astra_camera`; without them the first `colcon build` fails.
 
 > Do **not** install `opencv-python` from pip — it shadows the system `cv2` that `cv_bridge` was built against and causes a SIGSEGV in `yolo_node`.
 
@@ -89,6 +92,8 @@ vcs import planning/ros2_planning_system < planning/ros2_planning_system/depende
 
 ```bash
 cd ~/TFG
+sudo rosdep init || true   # safe to skip if already initialised
+rosdep update
 rosdep install --from-paths src --ignore-src -y -r --rosdistro ${ROS_DISTRO}
 
 # CPU only:
@@ -97,6 +102,8 @@ colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF
 # Or, with NVIDIA GPU acceleration for llama_ros (requires CUDA toolkit):
 colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DGGML_CUDA=ON
 ```
+
+> If the build runs out of RAM or the terminal crashes (common when `llama_cpp_vendor` and `plansys2` compile in parallel), retry with a single worker: `colcon build --symlink-install --parallel-workers 1`. You can also limit it to the failing package with `--packages-select <pkg>`, or drop a `COLCON_IGNORE` file inside a package to skip it.
 
 ---
 
@@ -115,6 +122,40 @@ Launch arguments:
 - `displaced_book` — `red_book`, `green_book`, `yellow_book`, `blue_book`
 - `perception_mode` — `real` (YOLO) or `sim` (synthetic detections)
 - `gui` — `true` / `false`
+
+---
+
+## Real robot (optional)
+
+The bookstore demo runs in Gazebo, so the steps above are enough. If you also want to drive a **physical Kobuki**, you need udev rules so the kernel exposes `/dev/kobuki`, `/dev/rplidar`, etc. with the right permissions:
+
+```bash
+cd ~/TFG
+sudo cp src/robot/ThirdParty/ros_astra_camera/astra_camera/scripts/56-orbbec-usb.rules /etc/udev/rules.d/
+sudo cp src/robot/ThirdParty/rplidar_ros/scripts/rplidar.rules /etc/udev/rules.d/
+sudo cp src/robot/ThirdParty/kobuki_ros/60-kobuki.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+Then launch the real-robot stack (sensors are off by default):
+
+```bash
+ros2 launch kobuki kobuki.launch.py            # base only
+ros2 launch kobuki kobuki.launch.py lidar_a2:=true   # or lidar_s2 / xtion / astra
+```
+
+Refer to the upstream guide for hardware-specific quirks: <https://github.com/IntelligentRoboticsLabs/kobuki/tree/jazzy>.
+
+---
+
+## Troubleshooting
+
+If something specific to the Kobuki / EasyNav / PlanSys2 stacks fails and the notes above don't help, check the upstream repos — they are the source of truth and may have moved on since this guide was written:
+
+- Kobuki meta-repo (drivers, worlds, launchers): <https://github.com/IntelligentRoboticsLabs/kobuki/tree/jazzy>
+- EasyNavigation core: <https://github.com/EasyNavigation/EasyNavigation>
+- PlanSys2: <https://github.com/PlanSys2/ros2_planning_system>
+- llama_ros: <https://github.com/mgonzs13/llama_ros>
 
 ---
 
