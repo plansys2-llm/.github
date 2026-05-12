@@ -185,7 +185,7 @@ These edits live in third-party repos and cannot be committed here. Apply after 
 
 Then: `colcon build --packages-select kobuki_description --symlink-install`.
 
-**LLM model — CPU or GPU.** The demo loads `Qwen2.5-3B-Instruct` from `src/llm/llama_ros/llama_bringup/models/Qwen2.5-3B.yaml`, tuned for 4-core CPUs. To run on GPU (build with `-DGGML_CUDA=ON`), set `n_gpu_layers: -1`:
+**LLM model — CPU or GPU.** The demo loads `Qwen2.5-3B-Instruct` from `src/llm/llama_ros/llama_bringup/models/Qwen2.5-3B.yaml`, configured for CPU inference (4 threads, ~2 GB weights). To run on GPU (build with `-DGGML_CUDA=ON`), set `n_gpu_layers: -1`:
 
 ```yaml
 /**:
@@ -214,7 +214,11 @@ Then: `colcon build --packages-select kobuki_description --symlink-install`.
       system_prompt_type: ChatML
 ```
 
-No rebuild needed (the YAML is read at launch).
+No rebuild needed (the YAML is read at launch). Measured end-to-end latency on the real demo prompt (~3 050 tokens):
+
+- **RTX 5060** (GPU): ~3.9 s per call.
+- **i7-12700H @ 4 threads** (CPU): ~11 s per call.
+- **Raspberry Pi 5 16 GB** (CPU): ~3:19 first call (cold), ~0:48 for subsequent replans. The warm latency comes from `pre_launch: true` keeping the `llama_node` alive and `cache_prompt: true` reusing the prompt prefix between solver calls.
 
 </details>
 
