@@ -62,7 +62,7 @@ sudo apt install -y \
 # numpy<2 prevents pip from upgrading numpy and breaking cv_bridge.
 # Do NOT install opencv-python — it shadows the system cv2 used by cv_bridge
 # and causes a SIGSEGV in yolo_node.
-pip3 install --break-system-packages "numpy<2" ultralytics lap
+pip3 install --break-system-packages "numpy<2" ultralytics lap huggingface_hub
 ```
 
 ### 2. Workspace
@@ -185,18 +185,36 @@ These edits live in third-party repos and cannot be committed here. Apply after 
 
 Then: `colcon build --packages-select kobuki_description --symlink-install`.
 
-**Phi-4 — tune for CPU-only.** For 4-core CPUs (e.g. Raspberry Pi 5 16 GB), edit `src/llm/llama_ros/llama_bringup/models/Phi-4.yaml`:
+**LLM model — CPU or GPU.** The demo loads `Qwen2.5-3B-Instruct` from `src/llm/llama_ros/llama_bringup/models/Qwen2.5-3B.yaml`, tuned for 4-core CPUs. To run on GPU (build with `-DGGML_CUDA=ON`), set `n_gpu_layers: -1`:
 
 ```yaml
-context:
-  n_ctx: 4096      # was 2048 — longer context for replanning prompts
-  n_batch: 256     # was 8    — fewer forward passes per token
-  n_predict: 1024  # was 2048 — bounded latency
-cpu:
-  n_threads: 4     # was 1    — match physical cores
+/**:
+  ros__parameters:
+    # Model parameters
+    model:
+      repo: bartowski/Qwen2.5-3B-Instruct-GGUF
+      filename: Qwen2.5-3B-Instruct-Q4_K_M.gguf
+
+    # Context / inference parameters
+    context:
+      n_ctx: 8192
+      n_batch: 512
+      n_predict: 512
+
+    # GPU / backend parameters
+    gpu:
+      n_gpu_layers: 0   # set to -1 for full GPU offload
+
+    # CPU parameters
+    cpu:
+      n_threads: 4
+
+    # Prompt & chat parameters
+    prompt:
+      system_prompt_type: ChatML
 ```
 
-No rebuild needed.
+No rebuild needed (the YAML is read at launch).
 
 </details>
 
