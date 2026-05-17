@@ -216,7 +216,7 @@ Then: `colcon build --packages-select kobuki_description --symlink-install`.
 
 No rebuild needed (the YAML is read at launch). Measured end-to-end latency on the real demo prompt (~3 050 tokens):
 
-- **RTX 5060** (GPU): ~3.9 s per call.
+- **RTX 3050 Ti** (GPU): ~3.9 s per call.
 - **i7-12700H @ 4 threads** (CPU): ~11 s per call.
 - **Raspberry Pi 5 16 GB** (CPU): ~3:19 first call (cold), ~0:48 for subsequent replans. The warm latency comes from `pre_launch: true` keeping the `llama_node` alive and `cache_prompt: true` reusing the prompt prefix between solver calls.
 
