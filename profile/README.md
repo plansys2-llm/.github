@@ -257,7 +257,7 @@ When something specific to a stack fails and the notes above don't help, the ups
 | | |
 |---|---|
 | **Author** | Álvaro Valencia |
-| **Advisor** | Francisco Martín Rico |
+| **Advisor** | Francisco Martín Rico — Francisco Miguel Moreno Olivo |
 | **Institution** | Universidad Rey Juan Carlos (URJC) |
 | **Year** | 2026 |
 | **License** | Apache 2.0 (org repos); upstream stacks keep their own licenses |
