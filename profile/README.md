@@ -2,7 +2,7 @@
 
 Tools and demos for **LLM-assisted replanning in PlanSys2** — though the approach is planner-agnostic and applies to any PDDL-based planning system. When a classical planner hits an execution failure or a perception contradiction, an LLM is consulted to propose the world-state corrections needed to recover, and the planner replans from there. The current showcase is a service-robot demo where a Kobuki retrieves a misplaced book in a Gazebo bookstore.
 
-![PlanSys2 + LLM-Solver architecture](assets/architecture.png)
+![PlanSys2 + LLM-Monitor architecture](assets/architecture.png)
 
 ---
 
@@ -10,7 +10,7 @@ Tools and demos for **LLM-assisted replanning in PlanSys2** — though the appro
 
 | Repository | What it is |
 |---|---|
-| [`plansys2_llm_solver`](https://github.com/plansys2-llm/plansys2_llm_solver) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model and returns the predicate deltas needed to recover. |
+| [`plansys2_llm_monitor`](https://github.com/plansys2-llm/plansys2_llm_monitor) | LLM-assisted replanner for PlanSys2. Invoked at runtime when execution fails or perception contradicts the world model and returns the predicate deltas needed to recover. |
 | [`plansys2_llm_examples`](https://github.com/plansys2-llm/plansys2_llm_examples) | The `plan_bookstore` demo: PDDL domain, behavior trees, launch files, maps, book models — entry point of the project. |
 
 ## Stack
@@ -18,7 +18,7 @@ Tools and demos for **LLM-assisted replanning in PlanSys2** — though the appro
 - **Robot:** Kobuki (simulated in Gazebo Sim, AWS RoboMaker bookstore world)
 - **Navigation:** EasyNav (AMCL localizer + costmap planner/controller)
 - **Perception:** YOLO via `yolo_ros`
-- **Planning:** PlanSys2 with POPF, plus `plansys2_llm_solver` consulted at execution time
+- **Planning:** PlanSys2 with POPF, plus `plansys2_llm_monitor` consulted at execution time
 - **Behavior trees:** PlanSys2 BT actions (`move`, `pick_book`, `place_book`)
 
 ## Requirements
@@ -76,7 +76,7 @@ git clone https://github.com/mgonzs13/yolo_ros.git perception/yolo_ros
 
 # Planning
 git clone -b ${ROS_DISTRO}-devel https://github.com/PlanSys2/ros2_planning_system.git planning/ros2_planning_system
-git clone https://github.com/plansys2-llm/plansys2_llm_solver.git planning/plansys2_llm_solver
+git clone https://github.com/plansys2-llm/plansys2_llm_monitor.git planning/plansys2_llm_monitor
 git clone https://github.com/plansys2-llm/plansys2_llm_examples.git planning/plansys2_llm_examples
 
 # Robot meta-package
@@ -145,7 +145,7 @@ ros2 launch plan_bookstore bookstore_kobuki_launch.py \
 
 The first launch with `perception_mode:=real` is slower — `yolo_ros` and `llama_ros` fetch their model weights on demand.
 
-**Terminal 2** — reception controller (drives the demo and consults the LLM solver):
+**Terminal 2** — reception controller (drives the demo and consults the LLM monitor):
 
 ```bash
 export ROS_DISTRO=jazzy
@@ -158,7 +158,7 @@ ros2 run plan_bookstore reception_controller_node \
   -p displaced_book:=red_book
 ```
 
-Swap `planner_param.yaml` for any other profile under `plansys2_llm_examples/params/` (e.g. `planner_param_with_args.yaml`) to change planner/solver behavior without rebuilding.
+Swap `planner_param.yaml` for any other profile under `plansys2_llm_examples/params/` (e.g. `planner_param_with_args.yaml`) to change planner/monitor behavior without rebuilding.
 
 **Expected:** Gazebo opens with the bookstore world and a Kobuki spawned at the reception desk; terminal 1 prints PlanSys2 lifecycle activations; terminal 2 publishes the plan and the robot drives toward the displaced book.
 
