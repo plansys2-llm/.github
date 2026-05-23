@@ -12,14 +12,20 @@ Same scenario on two platforms — the robot retrieves a displaced book, PlanSys
     <th align="center">GPU</th>
   </tr>
   <tr>
-    <td>
-      <video src="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_CPU.mp4" controls width="100%"></video>
+    <td align="center">
+      <a href="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_CPU.mp4">
+        <img src="assets/demo_cpu.png" alt="CPU demo — click to play" width="100%" />
+      </a>
     </td>
-    <td>
-      <video src="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_GPU.mp4" controls width="100%"></video>
+    <td align="center">
+      <a href="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_GPU.mp4">
+        <img src="assets/demo_gpu.png" alt="GPU demo — click to play" width="100%" />
+      </a>
     </td>
   </tr>
 </table>
+
+<sub align="center">▶ Click a thumbnail to play the demo recording.</sub>
 
 ![PlanSys2 + LLM-Monitor architecture](assets/architecture.png)
 
