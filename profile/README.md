@@ -13,15 +13,11 @@ Same scenario on two platforms — the robot retrieves a displaced book, PlanSys
   </tr>
   <tr>
     <td>
-
-https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_CPU.mp4
-
-</td>
+      <video src="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_CPU.mp4" controls width="100%"></video>
+    </td>
     <td>
-
-https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_GPU.mp4
-
-</td>
+      <video src="https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_GPU.mp4" controls width="100%"></video>
+    </td>
   </tr>
 </table>
 
