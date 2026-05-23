@@ -2,6 +2,29 @@
 
 Tools and demos for **LLM-assisted replanning in PlanSys2** — though the approach is planner-agnostic and applies to any PDDL-based planning system. When a classical planner hits an execution failure or a perception contradiction, an LLM is consulted to propose the world-state corrections needed to recover, and the planner replans from there. The current showcase is a service-robot demo where a Kobuki retrieves a misplaced book in a Gazebo bookstore.
 
+## Demo
+
+Same scenario on two platforms — the robot retrieves a displaced book, PlanSys2 hits a perception contradiction, and the LLM-Monitor is consulted to repair the world state and replan.
+
+<table>
+  <tr>
+    <th align="center">CPU · 4 threads</th>
+    <th align="center">GPU</th>
+  </tr>
+  <tr>
+    <td>
+
+https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_CPU.mp4
+
+</td>
+    <td>
+
+https://github.com/plansys2-llm/.github/releases/download/v0.1-demo-videos/TFG_GPU.mp4
+
+</td>
+  </tr>
+</table>
+
 ![PlanSys2 + LLM-Monitor architecture](assets/architecture.png)
 
 ---
