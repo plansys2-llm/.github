@@ -13,13 +13,13 @@ Same scenario on two platforms — the robot retrieves a displaced book, PlanSys
   </tr>
   <tr>
     <td align="center">
-      <a href="https://www.youtube.com/watch?v=C8Jad01GiQo">
-        <img src="https://img.youtube.com/vi/C8Jad01GiQo/maxresdefault.jpg" alt="CPU demo — click to play" width="100%" />
+      <a href="https://www.youtube.com/watch?v=weDSXpcwabY">
+        <img src="https://img.youtube.com/vi/weDSXpcwabY/maxresdefault.jpg" alt="CPU demo — click to play" width="100%" />
       </a>
     </td>
     <td align="center">
-      <a href="https://www.youtube.com/watch?v=3IpSJym6kfE">
-        <img src="https://img.youtube.com/vi/3IpSJym6kfE/maxresdefault.jpg" alt="GPU demo — click to play" width="100%" />
+      <a href="https://www.youtube.com/watch?v=vN8mboff1Dg">
+        <img src="https://img.youtube.com/vi/vN8mboff1Dg/maxresdefault.jpg" alt="GPU demo — click to play" width="100%" />
       </a>
     </td>
   </tr>
