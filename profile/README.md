@@ -281,7 +281,7 @@ When something specific to a stack fails and the notes above don't help, the ups
 
 | | |
 |---|---|
-| **Thesis (TFG)** | [*Diseño e implementación de un módulo de replanificación basado en modelos de lenguaje para PlanSys2*](assets/TFG.pdf) — full text (PDF) |
+| **Thesis (TFG)** | [*Diseño e implementación de un módulo de replanificación basado en modelos de lenguaje para PlanSys2*](assets/TFG.pdf) |
 | **Author** | Álvaro Valencia |
 | **Advisor** | Francisco Martín Rico — Francisco Miguel Moreno Olivo |
 | **Institution** | Universidad Rey Juan Carlos (URJC) |
